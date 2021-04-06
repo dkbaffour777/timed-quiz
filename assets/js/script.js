@@ -358,7 +358,6 @@ function  handleGoBackBtn() {
 function renderHighScore() {
     var storedHighScores = JSON.parse(localStorage.getItem("highScores")) 
     var highScoreEl = ""
-    console.log(storedHighScores)
     if(storedHighScores){
         for (let highScore = 0; highScore < storedHighScores.length; highScore++) {
             highScoreEl += "<li>" + storedHighScores[highScore].initials + " - " + storedHighScores[highScore].score + "</li>"
@@ -369,7 +368,10 @@ function renderHighScore() {
 
 // Handle all done
 function handleAllDoneSubmit() {
-    var highScores = []
+    var highScores = JSON.parse(localStorage.getItem("highScores")) 
+    // Set high scores to an empty array if there's nothing in the local storage
+    if(!highScores) highScores = []
+    
     document.querySelector("#all-done-form").addEventListener("submit", function(event){
         var initials = document.querySelector("input[name='initials']").value
         if(initials.length === 0){
