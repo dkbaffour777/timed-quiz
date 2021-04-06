@@ -64,6 +64,7 @@ questionMsgWrapperEl.innerHTML = `
 var appNavigationHistory = []
 var functionCall = {handleStartBtn: false, handleGoBackBtn: false, handleViewHighScore: false, handleAllDoneSubmit: false}
 var timerInterval, timer = 0
+var isSubmit = false
 
 var javascriptQuestionsID = 0, score = 0
 var javascriptQuestions = [
@@ -196,7 +197,6 @@ var appNavigation = {
 
         // push the current function to the appNavigation history array
         appNavigationHistory.push("welcomePage")
-        localStorage.setItem("appNavigationHistory", JSON.stringify(appNavigationHistory))
         // Call the handleViewHighScore only once
         if(!functionCall.handleViewHighScore) {
             handleViewHighScore()
@@ -213,26 +213,23 @@ var appNavigation = {
         questionEl.innerHTML = renderQuestion(javascriptQuestionsID)
         questionAllDonePage(questionEl)
         appNavigationHistory.push("questionsPage")
-        localStorage.setItem("appNavigationHistory", JSON.stringify(appNavigationHistory))
     },
     allDonePage: function() {
         questionAllDonePage(allDoneEl)
         appNavigationHistory.push("allDonePage")
-        localStorage.setItem("appNavigationHistory", JSON.stringify(appNavigationHistory))
         if(!functionCall.handleAllDoneSubmit) {
             handleAllDoneSubmit()
             functionCall.handleAllDoneSubmit = true
         }
     },
-    highScorePage: function() {
+    highScorePage: function(event, isSubmit) {
         mainEl.innerHTML = ""
         mainEl.appendChild(highScoreBoardEl)
         document.querySelector("#high-score-cont").innerHTML = renderHighScore()
-
-        if(!functionCall.handleGoBackBtn) {
-            handleGoBackBtn()
-            handleClearHighScores()
+        if(!functionCall.handleGoBackBtn || isSubmit) {
             // change the value of handleGoBackBtn to true when it's corresponding function is called
+            handleGoBackBtn(event, isSubmit)
+            handleClearHighScores()
             functionCall.handleGoBackBtn = true
         }
         
@@ -252,14 +249,11 @@ function dispatchEventMainEl(event){
         var questionID = targetEl.getAttribute("data-question-id")
         var optionID = targetEl.getAttribute("data-option-id")
         var answer = javascriptQuestions[questionID].options[optionID].answer
-        console.log(javascriptQuestions[questionID].options[optionID].answer)
         
         if(javascriptQuestionsID < javascriptQuestions.length) {
             // Update the next question
             if(answer) {
                 score += 20
-                console.log("js id: ", javascriptQuestionsID)
-                console.log("Your score is now: ", score)
                 document.querySelector("#question-msg").textContent = "Correct!"
             } else {
                 timer -= 10
@@ -329,14 +323,24 @@ function handleTimer() {
 }
 
 // Go back to the previous page
-function  handleGoBackBtn() {
+function  handleGoBackBtn(event, isSubmit = null) {
     document.querySelector("#go-back-btn").addEventListener("click", function(){
         // Do nothing if appNavigationHistory array is empty
-        var storedHistory = localStorage.getItem("appNavigationHistory")
-        storedHistory = JSON.parse(storedHistory)
-        if(!(storedHistory.length === 0)){
+        if(!(appNavigationHistory.length === 0)){
             // Get the last element of the appNavigationHistory array
-            var mostRecentPageName = storedHistory[storedHistory.length - 1]
+            var mostRecentPageName = appNavigationHistory[appNavigationHistory.length - 1]
+            
+            // When the user is coming from the allDonePage, redirect him to the welcome page
+            if(isSubmit) {
+                mostRecentPageName = "welcomePage"
+                
+                // Reset
+                timer = 0
+                javascriptQuestionsID = 0
+                score = 0
+                isSubmit = false
+                appNavigationHistory.push("welcomePage")
+            }
             
             // From appNavigation object, get the corresponding method
             var mostRecentPage = appNavigation[mostRecentPageName]
@@ -349,7 +353,6 @@ function  handleGoBackBtn() {
             
             // Prevents storedHistory array from having consecutive elements with the same values
             appNavigationHistory.pop()
-            localStorage.setItem("appNavigationHistory", JSON.stringify(appNavigationHistory))
         }
     })
 }
@@ -373,15 +376,19 @@ function handleAllDoneSubmit() {
     if(!highScores) highScores = []
     
     document.querySelector("#all-done-form").addEventListener("submit", function(event){
+        event.preventDefault()
         var initials = document.querySelector("input[name='initials']").value
         if(initials.length === 0){
             alert("Please fill in your initials")
-            event.preventDefault()
         }else{
+
             initials = initials.toUpperCase()
             highScores.push({initials, score})
             localStorage.setItem("highScores", JSON.stringify(highScores))
             alert("Your score was saved")
+            isSubmit = true
+            appNavigation.highScorePage(null, isSubmit)
+            isSubmit = false
         }
     })
 }
