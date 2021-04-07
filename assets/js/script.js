@@ -217,6 +217,8 @@ var appNavigation = {
     allDonePage: function() {
         questionAllDonePage(allDoneEl)
         appNavigationHistory.push("allDonePage")
+        document.querySelector("#final-score").textContent = score
+        document.querySelector("#all-done-form").reset()
         if(!functionCall.handleAllDoneSubmit) {
             handleAllDoneSubmit()
             functionCall.handleAllDoneSubmit = true
@@ -259,7 +261,6 @@ function dispatchEventMainEl(event){
                 timer -= 10
                 document.querySelector("#question-msg").textContent = "Wrong!"
             }
-            
             // Go to the next javascript question index
             javascriptQuestionsID++
 
@@ -268,8 +269,8 @@ function dispatchEventMainEl(event){
                 questionsWrapperEl.appendChild(questionMsgWrapperEl)
             } else {
                 appNavigation.allDonePage()
-                document.querySelector("#final-score").textContent = score
                 clearInterval(timerInterval)
+                if(mainEl.contains(barEl)) document.querySelector("#time").textContent = timer
             }
         }
     }
@@ -347,9 +348,8 @@ function  handleGoBackBtn(event, isSubmit = null) {
             
             // Render the corresponding page
             mostRecentPage()
-
             // Sync the time element with the timer when the timer element exists
-            if(mainEl.contains(barEl)) document.querySelector("#time").textContent = timer
+            if(mainEl.contains(barEl)) document.querySelector("#time").textContent = (timer < 0) ? 0 : timer
             
             // Prevents storedHistory array from having consecutive elements with the same values
             appNavigationHistory.pop()
