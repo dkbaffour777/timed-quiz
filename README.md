@@ -1,4 +1,5 @@
 # Timed Quiz
+Deployed Application: https://dkbaffour777.github.io/timed-quiz/.
   - A single page application built that depends heavily on JavaScript and the web API
   - A game of five JavaScript related questions
   - There's a timer when the game/questions starts
