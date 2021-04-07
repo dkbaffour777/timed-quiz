@@ -359,7 +359,8 @@ function  handleGoBackBtn(event, isSubmit = null) {
 
 // Render high score
 function renderHighScore() {
-    var storedHighScores = JSON.parse(localStorage.getItem("highScores")) 
+    var storedHighScores = localStorage.getItem("highScores")
+    storedHighScores = JSON.parse(storedHighScores)
     var highScoreEl = ""
     if(storedHighScores){
         for (let highScore = 0; highScore < storedHighScores.length; highScore++) {
@@ -371,11 +372,12 @@ function renderHighScore() {
 
 // Handle all done
 function handleAllDoneSubmit() {
-    var highScores = JSON.parse(localStorage.getItem("highScores")) 
-    // Set high scores to an empty array if there's nothing in the local storage
-    if(!highScores) highScores = []
     
     document.querySelector("#all-done-form").addEventListener("submit", function(event){
+        var highScores = JSON.parse(localStorage.getItem("highScores")) 
+        // Set high scores to an empty array if there's nothing in the local storage
+        if(!highScores) highScores = []
+
         event.preventDefault()
         var initials = document.querySelector("input[name='initials']").value
         if(initials.length === 0){
@@ -396,7 +398,7 @@ function handleAllDoneSubmit() {
 // handle clear high scores
 function handleClearHighScores() {
     document.querySelector("#clear-high-scores").addEventListener("click", function(){
-        localStorage.setItem("highScores", null)
+        localStorage.setItem("highScores", JSON.stringify([]))
         document.querySelector("#high-score-cont").innerHTML = ""
     })
 }
