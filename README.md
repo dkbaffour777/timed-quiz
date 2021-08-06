@@ -7,3 +7,4 @@ Deployed Application: https://dkbaffour777.github.io/timed-quiz/.
   - Store your high scores with your initials after the game which you can access again when you reopen the browser
   - High scores can also be cleared
   - Have fun!
+  ![timed-quiz](./assets/images/timed-quiz.PNG)
